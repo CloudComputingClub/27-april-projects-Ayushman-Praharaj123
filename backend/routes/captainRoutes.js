@@ -1,6 +1,6 @@
 import express from 'express';
 import { body } from 'express-validator';
-import { registerCaptain,loginCaptain } from "../controller/captainController.js";
+import { registerCaptain,loginCaptain,getCaptainProfile,logoutCaptain } from "../controller/captainController.js";
 import { authCaptain } from '../middleware/authMiddleware.js';
 const router = express.Router();
 router.post('/register', [
@@ -21,6 +21,7 @@ router.post('/login',[
 ],
         loginCaptain
 )
-
+router.get('/captainProfile',authCaptain, getCaptainProfile);
+router.get('/logoutcaptain', authCaptain, logoutCaptain);
 
 export default router;
