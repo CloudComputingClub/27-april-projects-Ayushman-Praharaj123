@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 const Home = () => {
   return (
     <div
-      className="bg-cover bg-bottom  bg-center h-screen pt-8 flex justify-between flex-col w-full"
+      className="bg-cover  bg-center h-screen pt-8 flex justify-between flex-col w-full"
       style={{ backgroundImage: `url(${bgimage})` }}
     >
       <img className="w-36 ml-0" src="/finalLogo.png" alt="Drivigo" />
