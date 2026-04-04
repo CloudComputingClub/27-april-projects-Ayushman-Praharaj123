@@ -12,7 +12,6 @@ const UserSignup = () => {
   const { user, setUser } = React.useContext(UserDataContext)
   const submitHandler = async (e) => {
     e.preventDefault()
-
     const newUser = {
       fullname: {
         firstname: firstname,
@@ -27,6 +26,7 @@ const UserSignup = () => {
         newUser
       )
       setUser(response.data.user)
+      localStorage.setItem("token", data.token)
       navigate('/home')
 
     } catch (error) {

@@ -45,18 +45,12 @@ const CaptainLogin = () => {
     setEmail('')
     setPassword('')
   }
-
   return (
     <div className='p-7 h-screen flex flex-col justify-between'>
-
       <div>
-
         <img className="w-36 ml-0" src="/finalLogo.png" alt="Drivigo" />
-
         <form onSubmit={submitHandler}>
-
           <h3 className='text-xl mb-2'>What's your email</h3>
-
           <input
             required
             value={email}
@@ -65,9 +59,7 @@ const CaptainLogin = () => {
             type="email"
             placeholder='your email'
           />
-
           <h3 className='text-xl mb-2'>Enter password</h3>
-
           <input
             required
             value={password}
@@ -76,7 +68,6 @@ const CaptainLogin = () => {
             type="password"
             placeholder='password'
           />
-
           <button className='bg-[#111] mb-7 text-white rounded px-4 py-2 w-full text-lg'>
             Login to your account
           </button>
