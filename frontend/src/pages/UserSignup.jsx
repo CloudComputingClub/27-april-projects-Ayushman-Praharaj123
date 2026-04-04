@@ -21,18 +21,22 @@ const UserSignup = () => {
       email: email,
       password: password
     }
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newUser)
-    if (response.status === 200) {
-      const data = response.data
-      setUser(data.user)
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/users/register`,
+        newUser
+      )
+      setUser(response.data.user)
       navigate('/home')
+
+    } catch (error) {
+      console.log(error)
     }
     setFirstname('')
     setLastname('')
     setEmail('')
     setPassword('')
   }
-
   return (
     <div className='p-7 h-screen flex flex-col justify-between'>
       <div>
