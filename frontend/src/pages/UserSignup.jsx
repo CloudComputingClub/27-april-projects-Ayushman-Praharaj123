@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { UserDataContext } from '../context/userContext.jsx'
@@ -9,7 +9,7 @@ const UserSignup = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
-  const { user, setUser } = React.useContext(UserDataContext)
+  const { user, setUser } = useContext(UserDataContext)
   const submitHandler = async (e) => {
     e.preventDefault()
     const newUser = {
@@ -26,7 +26,7 @@ const UserSignup = () => {
         newUser
       )
       setUser(response.data.user)
-      localStorage.setItem("token", data.token)
+      localStorage.setItem("token", response.data.token)
       navigate('/home')
 
     } catch (error) {
