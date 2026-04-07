@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { IoClose } from "react-icons/io5"
 import LocationSearchPanel from "../Components/LocationSearchPanel"
 import RideOptions from "../Components/RideOption"
+import ConfirmRidePanel from "../Components/ConfirmRidePanel"
 import DriverDetails from "../Components/DriverDetails"
 
 const Home = () => {
@@ -14,6 +15,9 @@ const Home = () => {
 
   const [showRideOptions, setShowRideOptions] = useState(false)
   const [selectedRide, setSelectedRide] = useState(null)
+
+  const [confirmRide, setConfirmRide] = useState(false)
+  const [showDriver, setShowDriver] = useState(false)
 
   const submitHandler = (e) => {
     e.preventDefault()
@@ -29,6 +33,23 @@ const Home = () => {
     setActiveField(null)
   }
 
+  const handleRideSelect = (ride) => {
+    setSelectedRide(ride)
+    setShowRideOptions(false)
+    setConfirmRide(true)
+  }
+
+  const confirmRideHandler = () => {
+    setConfirmRide(false)
+    setShowDriver(true)
+  }
+
+  const cancelRideHandler = () => {
+    setConfirmRide(false)
+    setSelectedRide(null)
+    setShowRideOptions(true)
+  }
+
   return (
     <div className="h-screen w-screen relative overflow-hidden">
 
@@ -37,11 +58,9 @@ const Home = () => {
           src="https://imgs.search.brave.com/o1bNNmgE34Llv5ABeEebZBLoi0z_YSrVQF4zseyr1l8/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTI2/NjYyNjQwMi92ZWN0/b3IvaWxsdXN0cmF0/aW9uLW9mLWhhbmQt/aG9sZGluZy1zbWFy/dC1waG9uZS13aXRo/LW5hdmlnYXRpb24t/YXBwLW9uLXNjcmVl/bi5qcGc_cz02MTJ4/NjEyJnc9MCZrPTIw/JmM9X194VFBwbG5j/VGZSQzRreFNRUjlt/dmkxZ0VlbTgzVmN4/RUhVZFMyd2ZuST0"
           alt=""
         />
-
       <img
         className="w-36 absolute top-5 left-5 z-50"
         src="/finalLogo.png"
-        alt="logo"
       />
 
       <div className="absolute bottom-0 w-full bg-white p-6 rounded-t-3xl shadow-xl z-30">
@@ -91,23 +110,31 @@ const Home = () => {
         </form>
 
         {panelOpen && (
-          <div className="mt-5 max-h-60 overflow-y-auto">
-            <LocationSearchPanel
-              activeField={activeField}
-              setPickup={setPickup}
-              setDestination={setDestination}
-              closePanel={closePanel}
-            />
-          </div>
+          <LocationSearchPanel
+            activeField={activeField}
+            setPickup={setPickup}
+            setDestination={setDestination}
+            closePanel={closePanel}
+          />
         )}
 
       </div>
 
-      {showRideOptions && !selectedRide && (
-        <RideOptions setSelectedRide={setSelectedRide} />
+      {showRideOptions && (
+        <RideOptions setSelectedRide={handleRideSelect} />
       )}
 
-      {selectedRide && (
+      {confirmRide && selectedRide && (
+        <ConfirmRidePanel
+          ride={selectedRide}
+          pickup={pickup}
+          destination={destination}
+          confirmRide={confirmRideHandler}
+          cancelRide={cancelRideHandler}
+        />
+      )}
+
+      {showDriver && selectedRide && (
         <DriverDetails ride={selectedRide} />
       )}
 
