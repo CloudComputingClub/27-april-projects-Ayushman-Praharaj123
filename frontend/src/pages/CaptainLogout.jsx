@@ -21,13 +21,13 @@ function CaptainLogout() {
     .then(() => {
 
       localStorage.removeItem('captainToken')
-      navigate('/capatin-login')
+      navigate('/captain-login')
 
     })
     .catch(() => {
 
       localStorage.removeItem('captainToken')
-      navigate('/capatin-login')
+      navigate('/captain-login')
 
     })
 

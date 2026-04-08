@@ -14,7 +14,7 @@ const CaptainProtectedWrapper = ({ children }) => {
     const token = localStorage.getItem("captainToken")
 
     if (!token) {
-      navigate("/capatin-login")
+      navigate("/captain-login")
       return
     }
 
@@ -29,7 +29,7 @@ const CaptainProtectedWrapper = ({ children }) => {
     })
     .catch(err => {
       localStorage.removeItem("captainToken")
-      navigate("/capatin-login")
+      navigate("/captain-login")
     })
 
   }, [])
