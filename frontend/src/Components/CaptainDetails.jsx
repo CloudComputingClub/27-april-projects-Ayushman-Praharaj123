@@ -41,13 +41,13 @@ const CaptainDetails = () => {
         <div className="bg-gray-50 rounded-2xl p-3 text-center">
           <div className="flex items-center justify-center gap-0.5 mb-1">
             <LuIndianRupee size={14} className="text-gray-600" />
-            <span className="text-lg font-bold text-gray-900">1,200</span>
+            <span className="text-lg font-bold text-gray-900">--</span>
           </div>
           <p className="text-xs text-gray-400">Earnings</p>
         </div>
         <div className="bg-gray-50 rounded-2xl p-3 text-center">
           <div className="flex items-center justify-center mb-1">
-            <span className="text-lg font-bold text-gray-900">5</span>
+            <span className="text-lg font-bold text-gray-900">--</span>
           </div>
           <p className="text-xs text-gray-400">Rides</p>
         </div>

@@ -1,7 +1,10 @@
-import { useState } from "react"
+import { useState, useEffect, useContext } from "react"
+import axios from "axios"
 import { MdLocationPin, MdMyLocation } from "react-icons/md"
-import { FiArrowRight, FiX } from "react-icons/fi"
+import { FiArrowRight, FiX, FiLoader } from "react-icons/fi"
 import { Link } from "react-router-dom"
+import { UserDataContext } from "../context/userContext"
+import socket from "../socket"
 import MapView from "../Components/MapView"
 import LocationSearchPanel from "../Components/LocationSearchPanel"
 import RideOptions from "../Components/RideOption"
@@ -9,6 +12,7 @@ import ConfirmRidePanel from "../Components/ConfirmRidePanel"
 import DriverDetails from "../Components/DriverDetails"
 
 const Home = () => {
+  const { setUser } = useContext(UserDataContext)
   const [pickup, setPickup] = useState("")
   const [destination, setDestination] = useState("")
   const [panelOpen, setPanelOpen] = useState(false)
@@ -16,7 +20,43 @@ const Home = () => {
   const [showRideOptions, setShowRideOptions] = useState(false)
   const [selectedRide, setSelectedRide] = useState(null)
   const [confirmRide, setConfirmRide] = useState(false)
+  const [lookingForRide, setLookingForRide] = useState(false)
   const [showDriver, setShowDriver] = useState(false)
+  const [rideData, setRideData] = useState(null)
+  const [assignedCaptain, setAssignedCaptain] = useState(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    axios.get(`${import.meta.env.VITE_BASE_URL}/users/userProfile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(res => {
+      const fetchedUser = res.data.user
+      setUser(fetchedUser)
+      socket.connect()
+      socket.emit('join', { userId: fetchedUser._id, role: 'user' })
+    }).catch(() => {})
+
+    return () => { socket.disconnect() }
+  }, [])
+
+  useEffect(() => {
+    socket.on('ride-confirmed', ({ ride, captain }) => {
+      setRideData(ride)
+      setAssignedCaptain(captain)
+      setLookingForRide(false)
+      socket.emit('join-ride', { rideId: ride._id })
+      setShowDriver(true)
+    })
+
+    socket.on('captain-location', (location) => {})
+
+    return () => {
+      socket.off('ride-confirmed')
+      socket.off('captain-location')
+    }
+  }, [])
 
   const submitHandler = (e) => {
     e.preventDefault()
@@ -27,8 +67,25 @@ const Home = () => {
 
   const closePanel = () => { setPanelOpen(false); setActiveField(null) }
   const handleRideSelect = (ride) => { setSelectedRide(ride); setShowRideOptions(false); setConfirmRide(true) }
-  const confirmRideHandler = () => { setConfirmRide(false); setShowDriver(true) }
+
+  const confirmRideHandler = async () => {
+    const token = localStorage.getItem('token')
+    setConfirmRide(false)
+    setLookingForRide(true)
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/create`,
+        { pickup, destination, vehicleType: selectedRide.vehicleType },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setRideData(res.data.ride)
+    } catch (_) {
+      setLookingForRide(false)
+    }
+  }
+
   const cancelRideHandler = () => { setConfirmRide(false); setSelectedRide(null); setShowRideOptions(true) }
+  const cancelLookingForRide = () => { setLookingForRide(false); setRideData(null) }
 
   return (
     <div className="h-screen w-screen relative overflow-hidden bg-gray-100">
@@ -129,7 +186,23 @@ const Home = () => {
         />
       )}
 
-      {showDriver && selectedRide && <DriverDetails ride={selectedRide} />}
+      {lookingForRide && (
+        <div className="absolute inset-0 bg-black/50 z-40 flex items-center justify-center">
+          <div className="bg-white rounded-3xl p-8 mx-5 text-center w-full max-w-sm">
+            <FiLoader className="animate-spin text-gray-900 mx-auto mb-4" size={36} />
+            <h3 className="text-lg font-bold text-gray-900">Looking for a captain</h3>
+            <p className="text-sm text-gray-400 mt-1 mb-5">Hold on, this may take a moment</p>
+            <button
+              onClick={cancelLookingForRide}
+              className="text-sm text-red-500 font-medium hover:underline"
+            >
+              Cancel ride
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showDriver && <DriverDetails ride={selectedRide} captain={assignedCaptain} />}
     </div>
   )
 }

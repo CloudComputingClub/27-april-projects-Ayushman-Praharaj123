@@ -1,7 +1,26 @@
+import { useState } from "react"
+import axios from "axios"
 import { MdLocationOn, MdLocationPin, MdCheckCircle } from "react-icons/md"
 import { LuIndianRupee } from "react-icons/lu"
+import { FiLoader } from "react-icons/fi"
 
 const FinishRide = ({ ride, onFinish }) => {
+  const [loading, setLoading] = useState(false)
+
+  const handleFinish = async () => {
+    const token = localStorage.getItem('captainToken')
+    setLoading(true)
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/end`,
+        { rideId: ride?._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+    } catch (_) {}
+    setLoading(false)
+    onFinish()
+  }
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
@@ -45,10 +64,11 @@ const FinishRide = ({ ride, onFinish }) => {
       </div>
 
       <button
-        onClick={onFinish}
-        className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-2xl transition-colors text-sm"
+        onClick={handleFinish}
+        disabled={loading}
+        className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3.5 rounded-2xl transition-colors text-sm flex items-center justify-center gap-2"
       >
-        Complete Ride
+        {loading ? <FiLoader className="animate-spin" size={16} /> : 'Complete Ride'}
       </button>
     </div>
   )

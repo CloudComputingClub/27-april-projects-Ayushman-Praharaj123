@@ -161,7 +161,7 @@ const CaptainSignup = () => {
 
           <p className='text-center'>
             Already have an account?{" "}
-            <Link to="/capatin-login" className='text-blue-400'>
+            <Link to="/captain-login" className='text-blue-400'>
               Login
             </Link>
           </p>

@@ -1,30 +1,70 @@
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect, useContext } from "react"
 import { Link } from "react-router-dom"
+import axios from "axios"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
 import { RiLogoutBoxRLine } from "react-icons/ri"
-import { MdRadar } from "react-icons/md"
+import { CaptainDataContext } from "../context/CaptainContext"
+import socket from "../socket"
 import MapView from "../Components/MapView"
 import CaptainDetails from "../Components/CaptainDetails"
 import RidePopUp from "../Components/RidePopUp"
 import ConfirmRidePopUp from "../Components/ConfirmRidePopUp"
 
-const dummyRide = {
-  _id: "123",
-  pickup: "MG Road Metro Station, New Delhi",
-  destination: "Cyber Hub, Gurgaon",
-  fare: 250,
-  otp: "4567",
-  user: { fullname: { firstname: "Arjun" } }
-}
-
 const CaptainHome = () => {
+  const { captain } = useContext(CaptainDataContext)
   const [ridePopupPanel, setRidePopupPanel] = useState(false)
   const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
-  const [ride] = useState(dummyRide)
+  const [ride, setRide] = useState(null)
 
   const ridePopupPanelRef = useRef(null)
   const confirmRidePopupPanelRef = useRef(null)
+
+  useEffect(() => {
+    if (!captain?._id) return
+
+    socket.connect()
+    socket.emit('join', { userId: captain._id, role: 'captain' })
+
+    socket.on('new-ride', (incomingRide) => {
+      setRide(incomingRide)
+      setRidePopupPanel(true)
+    })
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        socket.emit('update-location', {
+          location: {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          },
+          rideId: ride?._id || null
+        })
+      },
+      () => {},
+      { enableHighAccuracy: true }
+    )
+
+    return () => {
+      socket.off('new-ride')
+      socket.disconnect()
+      navigator.geolocation.clearWatch(watchId)
+    }
+  }, [captain?._id])
+
+  const handleAcceptRide = async () => {
+    const token = localStorage.getItem('captainToken')
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/confirm`,
+        { rideId: ride._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setRide(res.data.ride)
+      setRidePopupPanel(false)
+      setConfirmRidePopupPanel(true)
+    } catch (_) {}
+  }
 
   useGSAP(() => {
     gsap.to(ridePopupPanelRef.current, {
@@ -63,13 +103,6 @@ const CaptainHome = () => {
         <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-3 mb-1" />
         <div className="px-5 pt-2 pb-6">
           <CaptainDetails />
-          <button
-            onClick={() => setRidePopupPanel(true)}
-            className="mt-5 w-full bg-gray-900 hover:bg-black text-white font-semibold py-3.5 rounded-2xl flex items-center justify-center gap-2 transition-colors text-sm"
-          >
-            <MdRadar size={18} />
-            Simulate Ride Request
-          </button>
         </div>
       </div>
 
@@ -82,6 +115,7 @@ const CaptainHome = () => {
           ride={ride}
           setRidePopupPanel={setRidePopupPanel}
           setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+          onAccept={handleAcceptRide}
         />
       </div>
 

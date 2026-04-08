@@ -1,11 +1,14 @@
 import { useState, useRef } from "react"
+import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { MdLocationOn, MdLocationPin } from "react-icons/md"
 import { LuIndianRupee } from "react-icons/lu"
-import { FiArrowRight } from "react-icons/fi"
+import { FiArrowRight, FiLoader } from "react-icons/fi"
 
 const ConfirmRidePopUp = ({ ride, setConfirmRidePopupPanel, setRidePopupPanel }) => {
   const [otp, setOtp] = useState(['', '', '', ''])
+  const [otpError, setOtpError] = useState('')
+  const [loading, setLoading] = useState(false)
   const inputRefs = [useRef(), useRef(), useRef(), useRef()]
   const navigate = useNavigate()
 
@@ -14,6 +17,7 @@ const ConfirmRidePopUp = ({ ride, setConfirmRidePopupPanel, setRidePopupPanel })
     const updated = [...otp]
     updated[index] = value.slice(-1)
     setOtp(updated)
+    setOtpError('')
     if (value && index < 3) inputRefs[index + 1].current?.focus()
   }
 
@@ -23,9 +27,23 @@ const ConfirmRidePopUp = ({ ride, setConfirmRidePopupPanel, setRidePopupPanel })
     }
   }
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault()
-    navigate("/captain-riding", { state: { ride } })
+    const token = localStorage.getItem('captainToken')
+    setLoading(true)
+    setOtpError('')
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/rides/start`,
+        { rideId: ride._id, otp: otp.join('') },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      navigate("/captain-riding", { state: { ride: res.data.ride } })
+    } catch (_) {
+      setOtpError('Invalid OTP. Please check and try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const fullOtp = otp.join('')
@@ -79,12 +97,16 @@ const ConfirmRidePopUp = ({ ride, setConfirmRidePopupPanel, setRidePopupPanel })
           ))}
         </div>
 
+        {otpError && (
+          <p className="text-red-500 text-xs text-center mb-3">{otpError}</p>
+        )}
+
         <button
           type="submit"
-          disabled={fullOtp.length < 4}
+          disabled={fullOtp.length < 4 || loading}
           className="w-full bg-green-500 hover:bg-green-600 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-3.5 rounded-2xl transition-colors flex items-center justify-center gap-2 text-sm"
         >
-          Start Ride <FiArrowRight size={16} />
+          {loading ? <FiLoader className="animate-spin" size={16} /> : <>Start Ride <FiArrowRight size={16} /></>}
         </button>
       </form>
     </div>

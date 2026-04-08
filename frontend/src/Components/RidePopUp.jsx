@@ -2,7 +2,7 @@ import { MdLocationOn, MdLocationPin, MdDirectionsCar } from "react-icons/md"
 import { LuIndianRupee } from "react-icons/lu"
 import { FiX, FiCheck } from "react-icons/fi"
 
-const RidePopUp = ({ ride, setRidePopupPanel, setConfirmRidePopupPanel }) => {
+const RidePopUp = ({ ride, setRidePopupPanel, onAccept }) => {
   const userName = ride?.user?.fullname?.firstname || "Rider"
 
   return (
@@ -62,7 +62,7 @@ const RidePopUp = ({ ride, setRidePopupPanel, setConfirmRidePopupPanel }) => {
           Ignore
         </button>
         <button
-          onClick={() => { setRidePopupPanel(false); setConfirmRidePopupPanel(true) }}
+          onClick={onAccept}
           className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-2xl transition-colors text-sm"
         >
           <FiCheck size={18} />

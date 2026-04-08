@@ -1,16 +1,13 @@
 import { MdStar, MdCall, MdMessage } from "react-icons/md"
 import { FiNavigation } from "react-icons/fi"
 
-const DriverDetails = ({ ride }) => {
+const DriverDetails = ({ ride, captain }) => {
   if (!ride) return null
 
-  const driver = {
-    name: "Rahul Sharma",
-    carNumber: "MH12 AB 4521",
-    color: "White",
-    rating: "4.8",
-    avatar: "https://cdn-icons-png.flaticon.com/512/194/194938.png"
-  }
+  const captainName = captain?.fullname?.firstname || "Your Captain"
+  const vehicleColor = captain?.vehicle?.color || ""
+  const vehicleType = captain?.vehicle?.vehicleType || ride?.type || ""
+  const plate = captain?.vehicle?.plate || ""
 
   return (
     <div className="absolute bottom-0 left-0 right-0 md:right-auto md:w-96 md:m-4 md:rounded-3xl bg-white rounded-t-3xl shadow-2xl z-50">
@@ -21,20 +18,24 @@ const DriverDetails = ({ ride }) => {
           <h3 className="text-xl font-bold text-gray-900">Driver arriving</h3>
           <div className="flex items-center gap-1 bg-amber-50 rounded-full px-2 py-1">
             <MdStar className="text-amber-400" size={14} />
-            <span className="text-xs font-semibold text-amber-700">{driver.rating}</span>
+            <span className="text-xs font-semibold text-amber-700">4.8</span>
           </div>
         </div>
 
         <p className="text-sm text-gray-400 mb-5">Your captain is on the way</p>
 
         <div className="flex items-center gap-4 bg-gray-50 rounded-2xl p-4 mb-5">
-          <img src={ride.image} className="w-20 h-14 object-contain" alt={ride.type} />
+          {ride?.image && (
+            <img src={ride.image} className="w-20 h-14 object-contain" alt={vehicleType} />
+          )}
           <div className="flex-1">
-            <h4 className="font-bold text-gray-900">{driver.name}</h4>
-            <p className="text-sm text-gray-500 mt-0.5">{driver.color} {ride.type}</p>
-            <div className="mt-1 bg-gray-200 rounded px-2 py-0.5 inline-block">
-              <span className="text-xs font-bold text-gray-700 tracking-wider">{driver.carNumber}</span>
-            </div>
+            <h4 className="font-bold text-gray-900">{captainName}</h4>
+            <p className="text-sm text-gray-500 mt-0.5 capitalize">{vehicleColor} {vehicleType}</p>
+            {plate && (
+              <div className="mt-1 bg-gray-200 rounded px-2 py-0.5 inline-block">
+                <span className="text-xs font-bold text-gray-700 tracking-wider">{plate}</span>
+              </div>
+            )}
           </div>
         </div>
 

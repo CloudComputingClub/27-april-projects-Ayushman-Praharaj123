@@ -16,19 +16,28 @@ export const initializeSocket = (server) => {
             socket.join(userId)
             socket.data.userId = userId
             socket.data.role = role
+            if (role === 'captain') {
+                socket.join('captains')
+            }
         })
 
-        socket.on('update-location', ({ captainId, location }) => {
-            io.to(captainId).emit('captain-location', location)
+        socket.on('join-ride', ({ rideId }) => {
+            socket.join(`ride-${rideId}`)
+        })
+
+        socket.on('update-location', ({ location, rideId }) => {
+            if (rideId) {
+                io.to(`ride-${rideId}`).emit('captain-location', location)
+            }
         })
 
         socket.on('disconnect', () => {})
     })
 }
 
-export const sendToSocket = (socketId, { event, data }) => {
+export const sendToSocket = (roomOrId, { event, data }) => {
     if (io) {
-        io.to(socketId).emit(event, data)
+        io.to(roomOrId).emit(event, data)
     }
 }
 
