@@ -86,7 +86,7 @@ const Home = () => {
             onChange={(e) => setPickup(e.target.value)}
             onFocus={() => {
               setPanelOpen(true)
-              setActiveField("pickup")
+              setActiveField("pickup")  
             }}
             className="bg-gray-100 px-4 py-3 rounded-lg"
             placeholder="Add pickup location"
@@ -117,7 +117,6 @@ const Home = () => {
             closePanel={closePanel}
           />
         )}
-
       </div>
 
       {showRideOptions && (
